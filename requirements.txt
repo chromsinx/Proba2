@@ -1,7 +1,7 @@
 # Файл requirements.txt для Telegram бота
 pyaes==1.6.1
 pyasn1==0.4.8
-rsa==4.6
+rsa==4.5
 Telethon==1.37.0
 rapidfuzz==3.10.0 
 
