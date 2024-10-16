@@ -13,6 +13,6 @@
 
 Execute this at your server
 ```
-python telebot.py 
+python3 script4.py 
 ```
 Теперь запустите: python3 script4.py
