@@ -1,0 +1,10 @@
+# Файл requirements.txt для Telegram бота
+pyaes==1.6.1
+pyasn1==0.4.8
+rsa==4.6
+Telethon==1.37.0
+rapidfuzz==3.10.0 
+
+# Telethon==1.16.4 не работает. После обновления до 1.37.0 заработал Z
+# pip show pyaes && pip show pyasn1 && pip show rsa && pip show Telethon && pip show rapidfuzz
+# pip install pyaes==1.6.1 pyasn1==0.4.8 rsa==4.6 Telethon==1.37.0 rapidfuzz==3.10.0
