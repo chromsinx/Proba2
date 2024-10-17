@@ -2,7 +2,7 @@ import asyncio
 from telethon import TelegramClient, events
 from config import DESTINATION, STOP_WORDS_DESTINATION, API_ID, API_HASH, SESSION, CHATS, KEY_WORDS, STOP_WORDS
 from datetime import datetime, timedelta
-from rapidfuzz import fuzz  # Используем rapidfuzz для повышения производительности
+from rapidfuzz import fuzz  # Используем rapidfuzz для повышения производительности сравнения
 import logging
 
 # Настройка логирования
@@ -62,12 +62,23 @@ def is_similar(message_text):
             return True
     return False
 
+def remove_spaces(text):
+    """
+    Удаляет все пробелы из строки.
+    """
+    return text.replace(" ", "")
+
 def contains_stop_words(message_text):
     """
     Проверяет, содержит ли сообщение слова из стоп-листа.
     Возвращает True, если хотя бы одно слово из стоп-листа присутствует в тексте сообщения.
+    Пробелы в тексте сообщения и стоп-словах игнорируются.
     """
-    return any(stop_word in message_text.lower() for stop_word in STOP_WORDS_SET)
+    # Удаляем пробелы из текста сообщения
+    clean_message_text = remove_spaces(message_text.lower())
+    
+    # Проверяем, содержится ли хотя бы одно стоп-слово в тексте сообщения, игнорируя пробелы
+    return any(remove_spaces(stop_word) in clean_message_text for stop_word in STOP_WORDS_SET)
 
 async def remove_old_messages():
     """
@@ -109,11 +120,13 @@ async def new_message_handler(event):
             log_with_time("Сообщение похоже на уже существующее (>= 90% схожести), фильтруем...")
             return  # Сообщение похоже на уже отправленное, игнорируем его
 
-        # Добавляем новое сообщение в хранилище с текущей меткой времени
-        message_store[event.message.text] = datetime.now()
+        # Удаляем пробелы из текста сообщения
+        clean_message_text = remove_spaces(event.message.text.lower())
 
-        # Проверка на ключевые слова
-        if any(key_word in event.message.text.lower() for key_word in KEY_WORDS_SET):
+        # Проверка на ключевые слова без учёта пробелов
+        if any(remove_spaces(key_word) in clean_message_text for key_word in KEY_WORDS_SET):
+            # Добавляем новое сообщение в хранилище с текущей меткой времени
+            message_store[event.message.text] = datetime.now()
             # Пересылка сообщения в целевой чат
             await client.forward_messages(DESTINATION, event.message)
             log_with_time(f"Сообщение переслано: {event.message.text}")
@@ -142,3 +155,4 @@ if __name__ == "__main__":
     validate_config()
     # Запускаем основную асинхронную функцию
     asyncio.run(main())
+
